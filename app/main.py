@@ -8,7 +8,8 @@ def main():
     # TODO: Uncomment the code below to pass the first stage
     
     server_socket = socket.create_server(("localhost", 4221), reuse_port=True)
-    client, _ = server_socket.accept()
+    client, addr = server_socket.accept()
+    print(addr)
     data = client.recv(1024).decode()
     print(f"data is {data}")
 
