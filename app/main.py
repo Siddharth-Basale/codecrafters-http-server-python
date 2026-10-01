@@ -27,8 +27,26 @@ def main():
 
     if path_actual == "/":
         client.sendall(b"HTTP/1.1 200 OK\r\n\r\n")
+
+    elif path_actual.startswith("/echo/"):
+        # Extract everything after "/echo/" (6 characters long)
+        echo_str = path_actual[6:]
+        print(f"echo_str{echo_str}")
+        content_length = len(echo_str)
+        print(f"content length {content_length}")
+
+        response = (
+            f"HTTP/1.1 200 OK\r\n"
+            f"Content-Type: text/plain\r\n"
+            f"Content-Length: {content_length}\r\n\r\n"
+            f"{echo_str}"
+        )
+        client.sendall(response.encode())
+
     else:
-        client.sendall(b"HTTP/1.1 404 Not Found\r\n\r\n")
+        client.sendall(b"HTTP/1.1 404 Not Found\r\n\r\n") 
+
+    
 
     
 
