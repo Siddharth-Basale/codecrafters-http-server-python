@@ -9,8 +9,26 @@ def main():
     
     server_socket = socket.create_server(("localhost", 4221), reuse_port=True)
     client, _ = server_socket.accept()
-    client.sendall(b"HTTP/1.1 200 OK\r\n\r\n")
-    server_socket.accept() # wait for client
+    data = client.recv(1024).decode()
+    print(f"data is {data}")
+
+    line = data.split("\r\n")
+    line_first = data.split("\r\n")[0]
+    print(f"full line is :{line} ")
+    print(f"truncated line is :{line_first}")
+
+    path = line_first.split(" ")
+    path_actual = line_first.split(" ")[1]
+
+    print(f"list of path is : {path}")
+    print(f"wanted path is path is : {path_actual}")
+
+
+    if path_actual == "/":
+        client.sendall(b"HTTP/1.1 200 OK\r\n\r\n")
+    else:
+        client.sendall(b"HTTP/1.1 404 Not Found\r\n\r\n")
+
     
 
 
