@@ -11,7 +11,7 @@ def main():
     client, addr = server_socket.accept()
     print(addr)
     data = client.recv(1024).decode()
-    print(f"data is {data}")
+    print(f"data is :{data}")
 
     line = data.split("\r\n")
     line_first = data.split("\r\n")[0]
@@ -25,11 +25,12 @@ def main():
     print(f"wanted path is path is : {path_actual}")
 
 
+
+
     if path_actual == "/":
         client.sendall(b"HTTP/1.1 200 OK\r\n\r\n")
 
     elif path_actual.startswith("/echo/"):
-        # Extract everything after "/echo/" (6 characters long)
         echo_str = path_actual[6:]
         print(f"echo_str{echo_str}")
         content_length = len(echo_str)
@@ -42,6 +43,18 @@ def main():
             f"{echo_str}"
         )
         client.sendall(response.encode())
+
+    elif path_actual == "/user-agent":
+        val = line[2]
+        ans = val[12:]
+        response = (
+            f"HTTP/1.1 200 OK\r\n"
+            f"Content-Type: text/plain\r\n"
+            f"Content-Length: {len(ans)}\r\n\r\n"
+            f"{ans}"
+        )
+        client.sendall(response.encode())
+
 
     else:
         client.sendall(b"HTTP/1.1 404 Not Found\r\n\r\n") 
