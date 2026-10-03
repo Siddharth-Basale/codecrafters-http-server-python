@@ -1,15 +1,10 @@
 import socket  # noqa: F401
+import threading
 
 
-def main():
-    # You can use print statements as follows for debugging, they'll be visible when running tests.
-    print("Logs from your program will appear here!")
 
-    # TODO: Uncomment the code below to pass the first stage
-    
-    server_socket = socket.create_server(("localhost", 4221), reuse_port=True)
-    client, addr = server_socket.accept()
-    print(addr)
+def handle_client(client, addr):
+    print(f"New Connected at addr {addr}")
     data = client.recv(1024).decode()
     print(f"data is :{data}")
 
@@ -23,8 +18,6 @@ def main():
 
     print(f"list of path is : {path}")
     print(f"wanted path is path is : {path_actual}")
-
-
 
 
     if path_actual == "/":
@@ -58,6 +51,24 @@ def main():
 
     else:
         client.sendall(b"HTTP/1.1 404 Not Found\r\n\r\n") 
+ 
+
+
+
+
+def main():
+    # You can use print statements as follows for debugging, they'll be visible when running tests.
+    print("Logs from your program will appear here!")
+
+    server_socket = socket.create_server(("localhost", 4221), reuse_port=True)
+
+    while True:
+        client, addr = server_socket.accept()
+    
+        thread = threading.Thread(target = handle_client, args=(client, addr))
+        thread.start()
+  
+    
 
     
 
