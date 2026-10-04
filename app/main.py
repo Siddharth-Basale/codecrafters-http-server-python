@@ -1,5 +1,6 @@
 import socket  # noqa: F401
 import threading
+import os
 
 
 
@@ -47,6 +48,28 @@ def handle_client(client, addr):
             f"{ans}"
         )
         client.sendall(response.encode())
+
+    
+
+    elif path_actual[0:7] == "/files/":
+        path = path_actual[7:]
+        print(path)
+        if os.path.isfile("/tmp/data/codecrafters.io/http-server-tester/"+path):
+            with open("/tmp/data/codecrafters.io/http-server-tester/"+path, "rb") as f:
+                body = f.read()
+                print(body)
+                content_length = len(body)
+                print("length is", content_length )
+            headers = (
+                f"HTTP/1.1 200 OK\r\n"
+                f"Content-Type: application/octet-stream\r\n"
+                f"Content-Length: {content_length}\r\n\r\n"
+            )
+            header_byte = headers.encode()
+            responce = header_byte + body
+            client.sendall(responce)
+        else:
+            client.sendall(b"HTTP/1.1 404 Not Found\r\n\r\n") 
 
 
     else:
