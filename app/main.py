@@ -1,7 +1,7 @@
 import socket  # noqa: F401
 import threading
 import os
-
+import gzip
 
 
 def handle_client(client, addr):
@@ -31,12 +31,19 @@ def handle_client(client, addr):
         print(f"content length {content_length}")
 
         if "gzip" in line[2]:
-            response  = (
+            body = path_actual[6:]
+            print(f"body is {body}")
+            encoded = body.encode()
+            compressed = gzip.compress(encoded)
+            length = len(compressed)
+            headers= (
                 f"HTTP/1.1 200 OK\r\n"
-                f"Content-Type: text/plain\r\n"
-                f"Content-Encoding: gzip\r\n\r\n"
+                f"Content-Encoding: gzip\r\n"
+                f"Content-Length:{length} \r\n"
+                f"Content-Type: text/plain\r\n\r\n"
             )
-            client.sendall(response.encode())
+            response  = headers.encode()+ compressed 
+            client.sendall(response)
 
         elif line[2].startswith("Accept-Encoding:") and "gzip" not in line[2]:
             response  = (
