@@ -9,28 +9,38 @@ def handle_client(client, addr):
     while True:
         data = client.recv(1024).decode()
         print(f"data is :{data}")
-    
+
         line = data.split("\r\n")
         line_first = data.split("\r\n")[0]
         print(f"full line is :{line} ")
+        if line[2] == "Connection: close":
+            response = (
+                            f"HTTP/1.1 200 OK\r\n"
+                            f"Content-Type: text/plain\r\n"
+                            f"Connection: close\r\n\r\n"
+                           
+                        )
+            client.sendall(response.encode())
+            
+            break
         print(f"truncated line is :{line_first}")
-    
+
         path = line_first.split(" ")
         path_actual = line_first.split(" ")[1]
-    
+
         print(f"list of path is : {path}")
         print(f"wanted path is path is : {path_actual}")
-    
-    
+
+
         if path_actual == "/":
-            client.sendall(b"HTTP/1.1 200 OK\r\n\r\n")
-    
+            client.sendall(b"HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n")
+
         elif path_actual.startswith("/echo/"):
             echo_str = path_actual[6:]
             print(f"echo_str{echo_str}")
             content_length = len(echo_str)
             print(f"content length {content_length}")
-    
+
             if "gzip" in line[2]:
                 body = path_actual[6:]
                 print(f"body is {body}")
@@ -45,16 +55,16 @@ def handle_client(client, addr):
                 )
                 response  = headers.encode()+ compressed 
                 client.sendall(response)
-    
+
             elif line[2].startswith("Accept-Encoding:") and "gzip" not in line[2]:
                 response  = (
                     f"HTTP/1.1 200 OK\r\n"
                     f"Content-Type: text/plain\r\n\r\n"
                 )
                 client.sendall(response.encode())
-    
-    
-    
+
+
+
             response = (
                 f"HTTP/1.1 200 OK\r\n"
                 f"Content-Type: text/plain\r\n"
@@ -62,7 +72,7 @@ def handle_client(client, addr):
                 f"{echo_str}"
             )
             client.sendall(response.encode())
-    
+
         elif path_actual == "/user-agent":
             val = line[2]
             ans = val[12:]
@@ -73,8 +83,8 @@ def handle_client(client, addr):
                 f"{ans}"
             )
             client.sendall(response.encode())
-    
-    
+
+
         elif path_actual[0:7] == "/files/":
             if path[0] == "GET":
                 path = path_actual[7:]
@@ -104,13 +114,14 @@ def handle_client(client, addr):
                 with open(full_path, "w") as f:
                     f.write(body)
                 client.sendall(b"HTTP/1.1 201 Created\r\n\r\n")
-                
-    
-             
-    
-    
+
+
+
+
+
         else:
             client.sendall(b"HTTP/1.1 404 Not Found\r\n\r\n") 
+    client.close()
  
 
 
