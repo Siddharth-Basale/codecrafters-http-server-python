@@ -30,7 +30,7 @@ def handle_client(client, addr):
         content_length = len(echo_str)
         print(f"content length {content_length}")
 
-        if line[2] == "Accept-Encoding: gzip":
+        if "gzip" in line[2]:
             response  = (
                 f"HTTP/1.1 200 OK\r\n"
                 f"Content-Type: text/plain\r\n"
@@ -38,7 +38,7 @@ def handle_client(client, addr):
             )
             client.sendall(response.encode())
 
-        elif line[2].startswith("Accept-Encoding:"):
+        elif line[2].startswith("Accept-Encoding:") and "gzip" not in line[2]:
             response  = (
                 f"HTTP/1.1 200 OK\r\n"
                 f"Content-Type: text/plain\r\n\r\n"
